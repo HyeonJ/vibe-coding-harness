@@ -23,6 +23,9 @@ description: "코드 품질 + API 계약 정합성 + 테스트 검증. 글로벌
 - 빌드: `./gradlew build` (Spring) 또는 `npm run build` (React)
 - 테스트: `./gradlew test` 또는 `npm test`
 - 린트: 사용 가능한 linter (ESLint, Checkstyle 등)
+- **React + Tailwind 작업 시**: `bash scripts/measure-quality.sh <섹션명> <섹션 디렉토리>` — G4/G5/G6/G7/G8 게이트 한방 실행 (figma-react-lite 흡수)
+  - 결과: `tests/quality/{섹션명}.json` (각 게이트 PASS/FAIL/SKIP)
+  - 한 게이트라도 FAIL이면 보고서에 Critical 또는 Important 항목으로 기록
 
 ### Step 3: 경계면 교차 비교 (핵심)
 **개별 검증 X, 두 면을 동시에 읽고 shape 비교**:
