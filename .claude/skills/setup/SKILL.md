@@ -1,6 +1,6 @@
 ---
 name: setup
-description: "신규 프로젝트 부트스트랩 — 보일러플레이트 생성, Gradle Wrapper, .gitattributes, 디렉토리 구조, project-profile.yaml 생성, 첫 빌드 검증까지. project-profile.yaml의 backend.framework + frontend.markup 조합에 따라 spring-boot-init, react-init 등 동적 분기. '프로젝트 시작', '신규 프로젝트', '보일러플레이트', '초기 셋업', '환경 구성', 'project-profile' 등의 요청 시 반드시 이 스킬을 사용할 것."
+description: "신규 프로젝트 부트스트랩 — 보일러플레이트 생성, Gradle Wrapper, .gitattributes, 디렉토리 구조, project-profile.yaml 생성, 첫 빌드 검증까지. project-profile.yaml의 backend.framework + frontend.framework 조합에 따라 spring-boot-init, react-init 등 동적 분기. '프로젝트 시작', '신규 프로젝트', '보일러플레이트', '초기 셋업', '환경 구성', 'project-profile' 등의 요청 시 반드시 이 스킬을 사용할 것."
 ---
 
 # Setup Skill — 신규 프로젝트 부트스트랩
@@ -14,9 +14,13 @@ description: "신규 프로젝트 부트스트랩 — 보일러플레이트 생�
 
 ### Step 1: 스택 결정 (사용자 인터뷰)
 사용자에게 묻기 (옵션 제시):
-- backend: spring-boot+mybatis | spring-boot+jpa | (향후 추가)
-- frontend.markup: thymeleaf | react-jsx | (향후 추가)
-- frontend.interaction: jquery | react | (향후 추가)
+- backend.enabled: true | false (퍼블리싱 전용이면 false)
+- backend.framework (enabled=true 일 때): spring-boot+mybatis | spring-boot+jpa | (향후)
+- frontend.framework: react | nextjs | thymeleaf | html-vanilla | (향후)
+- frontend.styling: tailwind | css-modules | styled-components | none
+- frontend.language: ts | js
+- frontend.bundler: vite | webpack | none
+- frontend.interaction: react | jquery | vue | none (퍼블리싱만이면 none)
 - db: postgresql | mysql | oracle | h2(테스트 only)
 - ci: github-actions | jenkins | gitlab-ci
 
@@ -24,8 +28,9 @@ description: "신규 프로젝트 부트스트랩 — 보일러플레이트 생�
 
 ### Step 2: references 로드 + 부트스트랩 실행
 스택 조합에 따라:
-- `spring-boot + thymeleaf+jquery` → Read `references/spring-boot-thymeleaf.md`
-- `spring-boot + react` → Read `references/spring-boot-react.md`
+- `spring-boot + thymeleaf` → Read `references/spring-boot-thymeleaf.md` (향후)
+- `spring-boot + react` → Read `references/spring-boot-react.md` (향후)
+- 퍼블리싱 전용 (`react + tailwind` 등) → 부트스트랩 도구는 첫 슬라이스 실측 후 결정 (Vite 공식 scaffold 직접 사용 또는 자체 스크립트 작성)
 
 ### Step 3: 필수 파일 생성 (글로벌 CLAUDE.md 규칙)
 - `.gitattributes` (CRLF/LF 통일: `* text=auto` + 확장자별 `eol=lf`)

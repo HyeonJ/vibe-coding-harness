@@ -1,6 +1,6 @@
 ---
 name: markup
-description: "Figma 디자인을 정적 마크업(HTML/CSS 또는 React JSX)으로 변환. project-profile.yaml의 frontend.markup에 따라 thymeleaf, react-jsx, html-vanilla로 동적 분기. 상태/이벤트/API 호출 없이 props만 받는 dumb 컴포넌트만 생성. '퍼블리싱', '마크업', 'Figma 컴포넌트화', '정적 화면', 'HTML/CSS 작성', '재퍼블리싱', '마크업 수정' 등의 요청 시 반드시 이 스킬을 사용할 것."
+description: "Figma 디자인을 정적 마크업(HTML/CSS 또는 React JSX)으로 변환. project-profile.yaml의 frontend.framework + frontend.styling 조합에 따라 동적 분기. 상태/이벤트/API 호출 없이 props만 받는 dumb 컴포넌트만 생성. '퍼블리싱', '마크업', 'Figma 컴포넌트화', '정적 화면', 'HTML/CSS 작성', '재퍼블리싱', '마크업 수정' 등의 요청 시 반드시 이 스킬을 사용할 것."
 ---
 
 # Markup Skill — 디자인 → 정적 마크업 (스택 동적)
@@ -12,18 +12,38 @@ description: "Figma 디자인을 정적 마크업(HTML/CSS 또는 React JSX)으�
 
 ## Workflow
 
-### Step 1: 스택 식별 + references 로드 (계층형)
-1. `.claude/project-profile.yaml` 읽기
-2. `frontend.framework + frontend.styling` 조합으로 분기:
-   - **다중 변형 framework** (react, nextjs, vue 등) → `_common.md + {styling}.md` 둘 다 로드
-     - `react + tailwind` → Read `references/react/_common.md` + `references/react/tailwind.md`
-     - `react + css-modules` → Read `references/react/_common.md` + `references/react/css-modules.md` (향후)
-     - `react-native + nativewind` → Read `references/react-native/_common.md` + `references/react-native/nativewind.md` (v0.2.0)
-     - `nextjs + tailwind` → Read `references/nextjs/_common.md` + `references/nextjs/{router}.md` (향후)
-   - **단일 변형 framework** → 평면 파일 직접 로드
-     - `thymeleaf` → Read `references/thymeleaf.md`
-     - `html-vanilla` → Read `references/html.md` (향후)
-3. 디자인 가이드(색상/폰트) 컨텍스트 확인
+### Step 1: 스택 식별 + references 로드 (계층형 + 버전 감지)
+
+1. **profile 읽기** — `.claude/project-profile.yaml`
+   - `frontend.framework` — 예: `react`, `nextjs`, `react-native`, `thymeleaf`, `html-vanilla`
+   - `frontend.styling` — 예: `tailwind`, `css-modules`, `nativewind` (framework 별 허용값 다름)
+   - `frontend.language` — 예: `ts`, `js` (정보성)
+   - `frontend.bundler` — 예: `vite`, `webpack`, `none` (정보성)
+
+2. **styling 의 major 버전 감지** — `package.json` 의 `dependencies` + `devDependencies` 에서 해당 라이브러리 조회
+   - 예: `frontend.styling = tailwind` 라면 `tailwindcss` 의존성의 major 버전 확인
+   - `"^4.0.0"` / `"4.0.5"` → major = `4`
+   - `"^3.4.7"` → major = `3`
+   - 버전 없거나 감지 실패 → 사용자에게 명시적 질문. **추측 금지**.
+
+3. **references 로드**:
+
+   | 스택 조합 | 로드 파일 (순서대로) |
+   |---|---|
+   | `react + tailwind` (v3) | `react/_common.md` → `react/tailwind/_common.md` → `react/tailwind/v3.md` |
+   | `react + tailwind` (v4) | `react/_common.md` → `react/tailwind/_common.md` → `react/tailwind/v4.md` |
+   | `react + css-modules` (향후) | `react/_common.md` → `react/css-modules.md` |
+   | `react-native + nativewind` (v0.2.0) | `react-native/_common.md` → `react-native/nativewind.md` |
+   | `nextjs + tailwind` (향후) | `nextjs/_common.md` → `nextjs/{router}.md` → `nextjs/tailwind/_common.md` → `nextjs/tailwind/v{major}.md` |
+   | `thymeleaf` (단일 변형) | `thymeleaf.md` |
+   | `html-vanilla` (향후) | `html.md` |
+
+   **원칙**:
+   - 다중 변형 framework (react, nextjs 등) → `{framework}/_common.md` 먼저 로드
+   - styling 이 여러 버전 가짐 (tailwind v3/v4) → `{styling}/_common.md` + `{styling}/v{major}.md` 둘 다 로드. **다른 버전 .md 는 읽지 않는다.**
+   - 단일 변형 framework → 평면 파일 직접 로드
+
+4. 디자인 가이드(색상/폰트) 컨텍스트 확인.
 
 ### Step 2: 디자인 스펙 입력 (원본 직접 접근 X)
 - `_workspace/handoff/design-spec.md` 읽기 (필수, 없으면 design 에이전트 호출)
@@ -45,33 +65,44 @@ description: "Figma 디자인을 정적 마크업(HTML/CSS 또는 React JSX)으�
 - (frontend 에이전트가 이를 보고 동적 동작 추가)
 
 ## 절대 원칙 (위반 시 즉시 중단)
-- 동적 코드 작성 금지 (이는 frontend 스킬의 영역)
+- 동적 코드 작성 금지 (이는 interaction 스킬의 영역)
 - 디자인 토큰 무시하고 하드코딩 색상 사용 금지
 - 기존 컴포넌트와 중복 생성 금지 (재사용 우선)
+- 감지된 styling 버전에 맞는 .md 만 참조. 다른 버전 문법 혼입 금지.
 
 ## 글로벌 CLAUDE.md 준수
 - HTML/Thymeleaf: 속성 순서 (id → class → th:* → data-* → 이벤트)
 - CSS: BEM 또는 케밥케이스, `!important` 금지, 셀렉터 깊이 3단계 이하
 - fragment로 레이아웃 분리
 
-## References (계층형 구조)
+## References (계층형 구조 + 버전 분기)
 ```
 markup/references/
 ├── react/
-│   ├── _common.md          ← JSX 규칙, props, a11y (모든 React 공통)
-│   ├── tailwind.md         ← Tailwind v3/v4 + 반응형 + DS 인벤토리
-│   ├── css-modules.md      (향후)
-│   └── styled.md           (향후)
-├── react-native/           (v0.2.0)
+│   ├── _common.md                  ← JSX 규칙, props, a11y (모든 React 공통)
+│   ├── tailwind/
+│   │   ├── _common.md              ← 반응형, G4 금지 패턴, components.md (v3/v4 공통)
+│   │   ├── v3.md                   ← tailwind.config.ts, theme.extend 매핑
+│   │   └── v4.md                   ← @theme 블록, @import "tailwindcss", @tailwindcss/vite
+│   ├── css-modules.md              (향후)
+│   └── styled.md                   (향후)
+├── react-native/                   (v0.2.0)
 │   ├── _common.md
 │   └── nativewind.md
-├── nextjs/                 (향후)
+├── nextjs/                         (향후)
 │   ├── _common.md
-│   ├── app-router.md       (SEO)
-│   └── pages-router.md
-├── thymeleaf.md            ← 평면 (단일 변형)
-├── vue.md                  (향후)
-└── html.md                 (향후)
+│   ├── app-router.md
+│   ├── pages-router.md
+│   └── tailwind/
+│       ├── _common.md
+│       ├── v3.md
+│       └── v4.md
+├── thymeleaf.md                    ← 평면 (단일 변형)
+├── vue.md                          (향후)
+└── html.md                         (향후)
 ```
-- 다중 변형 framework: `_common.md` + 변형 .md 둘 다 로드
-- 단일 변형: 평면 파일 그대로
+
+**계층 원칙**:
+- 다중 변형 framework: `{framework}/_common.md` + styling 별 서브트리
+- 다중 버전 styling: `{styling}/_common.md` + `v{major}.md` (`package.json` 감지 기반)
+- 단일 변형/버전: 평면 파일

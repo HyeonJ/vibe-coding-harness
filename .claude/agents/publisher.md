@@ -17,9 +17,9 @@ model: opus
 
 ## 작업 원칙
 - **정적만**: useState, onClick, fetch 등 동적 코드 금지. 모든 동작은 props로 받는다.
-- **스택 자동 분기**: `.claude/project-profile.yaml`의 `frontend.markup`에 따라 references 로드
-  - `thymeleaf` → `skills/markup/references/thymeleaf.md`
-  - `react-jsx` → `skills/markup/references/react-jsx.md`
+- **스택 자동 분기**: `.claude/project-profile.yaml`의 `frontend.framework` + `frontend.styling` 에 따라 markup 스킬이 references 로드 (상세는 `skills/markup/SKILL.md` Step 1)
+  - `react + tailwind` → `markup/references/react/_common.md` + `tailwind/_common.md` + `tailwind/v{major}.md` (`package.json` 감지)
+  - `thymeleaf` → `markup/references/thymeleaf.md`
 - **글로벌 CLAUDE.md 준수**:
   - HTML/Thymeleaf: 속성 순서 (id → class → th:* → data-* → 이벤트), fragment 활용
   - CSS: BEM 또는 케밥케이스, `!important` 금지
@@ -36,7 +36,7 @@ model: opus
 **출력**:
 - 정적 마크업 코드 (스택에 따라 위치 다름):
   - thymeleaf: `src/main/resources/templates/` + `src/main/resources/static/css/`
-  - react-jsx: `src/components/` (props만 받는 dumb component)
+  - react: `src/components/` (props만 받는 dumb component)
 - `_workspace/publisher/components.md` — 만든 컴포넌트 목록 + props 명세 (frontend 참고용)
 
 ## 팀 통신 프로토콜

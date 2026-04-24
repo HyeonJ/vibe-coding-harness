@@ -17,8 +17,17 @@
 - 에이전트: `.claude/agents/` 5명 (design, backend, publisher, frontend, reviewer)
 - 스킬: `.claude/skills/` 8개 (5명 + setup, deploy-checklist, spec-extract) + 오케스트레이터 1개
 - 프로파일: `.claude/project-profile.yaml` (스택 동적 분기)
-- 자동화 스크립트: `scripts/` (figma-react-lite-harness 흡수 — 토큰 추출, 품질 게이트, Figma REST, 부트스트랩)
-- React 부트스트랩 템플릿: `templates/vite-react-ts/`
+- 템플릿: `templates/project-profile.yaml`, `templates/_workspace.gitignore`
+
+## 방향성 원칙 (외부 피드백 수용)
+
+다음 원칙을 모든 후속 작업이 따른다.
+
+1. **발명보다 참여** — Claude Code의 SKILL.md 표준, awesome-agent-skills 같은 공개 생태계 포맷을 따른다. "vibe-coding-harness" 라는 자체 네이밍이 "로컬 방언"이 되지 않도록, 공개 가능한 형태로 진화 검토.
+2. **검증 전에 추가 금지** — 실 프로젝트 1~2개 완주 전에는 게이트/스킬/에이전트 추가 자제. 데이터 없는 설계는 v0.1.0이 가장 피해야 할 것 (CLAUDE.md "알려진 갭" 참조).
+3. **constraint → feedback → gate 순서** — 업계 권고 (Plan-Execute-Verify 패턴). 현재 constraint(에이전트 룰)와 gate 후보(reviewer)는 있으나, **feedback loop(워커 자동 재시도, 실패 분석 후 재실행) 부재**. 다음 우선순위.
+4. **visual regression 도입 검토** — Applitools/Percy 추세에 따라 Playwright + pixelmatch (또는 동등) 로 Figma vs 프로덕션 직접 diff. lite 원칙과 공존 가능.
+5. **진짜 한국 SI 특화는 데이터 기반** — 정부 웹접근성(WA) 인증 체커, 퍼블리셔 전통 관행(부모 div 래핑), PDF 출력 호환성 같은 것은 실 프로젝트에서 발견된 실제 요구로만 도입. 마케팅 문구로 끝나지 않게.
 
 **v0.1.0 지원 스택:**
 - backend: spring-boot + mybatis, spring-boot + jpa
@@ -55,3 +64,5 @@
 | 2026-04-24 | figma-react-lite-harness 자산 흡수 (옵션 A) | scripts/, templates/vite-react-ts/ | 검증된 자동화 스크립트(check-token-usage, check-text-ratio, measure-quality, extract-tokens, figma-rest-image, bootstrap, doctor, setup-figma-token) + Vite React 부트스트랩 템플릿 통째 복사. 향후 본문 채우기 시 setup/spec-extract/markup/reviewer references에서 이 자산들 호출. 차륜 재발명 회피. |
 | 2026-04-24 | references 계층형 구조 변환 (Phase 8 준비) | backend/markup/interaction의 references + 3개 SKILL.md | 다중 변형 framework(react, spring-boot)는 `{framework}/_common.md + {variant}.md` 패턴으로 변환. 단일 변형(thymeleaf, jquery)은 평면 유지. 새 placeholder 추가: `backend/references/spring-boot/_common.md`, `markup/references/react/tailwind.md` (사용자 프로젝트 React+Tailwind 즉시 필요). Phase 8 본문 채우기는 위치 결정 끝난 상태로 시작. |
 | 2026-04-24 | Phase 8 1차 — figma-react-lite 자산 본문 흡수 | spec-extract/references/figma.md, markup/references/react/_common.md + tailwind.md, reviewer/references/conventions.md, reviewer/SKILL.md | figma-rest-image.sh + extract-tokens.sh 호출 패턴, dumb 컴포넌트 원칙 + DS 인벤토리, Tier 1/2 반응형 + mobile-first 변환표, G4/G5/G6/G7/G8 게이트 + measure-quality.sh 흡수. 사용자 프로젝트(React + Tailwind v4) 작업 가능 수준. 잔여 references(Spring Boot, jquery, thymeleaf, setup, deploy)는 차후 슬라이스 시도하며 보강. |
+| 2026-04-24 | v0.1.2 — 첫 슬라이스 실측 사전 정비 (profile 스키마 + tailwind 버전 분기 정식화 + v4 템플릿 + bootstrap 가드) | project-profile.yaml, publisher.md, markup/SKILL.md, markup/references/react/tailwind/_common.md + v3.md + v4.md (신설), setup/SKILL.md, templates/vite-react-ts/*, scripts/bootstrap.sh | 첫 실측 bootstrap 전 발견 4갭 해소. (1) profile 키 3곳 불일치 → `frontend.framework` + `frontend.styling` + `frontend.language` + `frontend.bundler` 로 정리 + `backend.enabled`/`frontend.enabled` 추가. (2) Tailwind 버전 분기축 부재 → `react/tailwind/{_common,v3,v4}.md` 3파일로 분해 + SKILL.md 에 `package.json` major 감지 Step 1.5 정식화. (3) vite-react-ts 템플릿 Tailwind v3 → v4 (`@tailwindcss/vite`, `@theme` 블록, `tailwind.config.ts`/`postcss.config.js` 제거). (4) bootstrap.sh docs 복사 가드 + 말미 legacy 메시지(section-worker / figma-react-lite 스킬) 교체. 근거: 데이터 없는 설계 결정 회피 원칙 — 실측 돌리기 전 blocking 갭만 해소. |
+| 2026-04-24 | **v0.1.3 — figma-react-lite 자산 revert (외부 피드백 수용, 옵션 B-2)** | scripts/ 전체 삭제, templates/vite-react-ts/ 삭제, 5개 references 본문 → TODO 복원 (spec-extract/figma.md, markup/react/_common.md + tailwind/{_common,v3,v4}.md, reviewer/conventions.md), reviewer/SKILL.md measure-quality 호출 제거, setup/SKILL.md bootstrap.sh 안내 제거, "방향성 원칙" 섹션 신설 | **외부 피드백 수용**: "1 commit, 0 실 프로젝트 검증" 상태에서 게이트 추가는 이른 최적화. constraint→feedback→gate 순서가 뒤집힘 (feedback loop 부재). G1 (visual regression) 부재. 한국 SI 도메인 특화 부재. → 흡수 자산을 모두 비우고 첫 슬라이스 실측 후 진짜 필요한 부분만 자체 구현 또는 외부 의존. 골격(에이전트 5명 + 스킬 8개 + 오케스트레이터)은 유지. |

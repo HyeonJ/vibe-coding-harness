@@ -1,33 +1,44 @@
 # vibe-coding-harness Project Profile
 # 신규 프로젝트마다 이 파일을 복사 → .claude/project-profile.yaml 로 배치 후 값 채울 것
 # setup 스킬이 자동 생성도 가능
+#
+# 퍼블리싱 전용 프로젝트라면 backend 블록은 enabled: false 로 두고 나머지 필드는 비워도 됨.
+# 각 에이전트/스킬은 enabled: false 인 블록은 참조하지 않는다.
 
 backend:
-  framework: spring-boot      # spring-boot
-  orm: mybatis                # mybatis | jpa
-  java_version: 17            # 17 | 21
-  db: postgresql              # postgresql | mysql | oracle | mariadb
-                              # (h2는 테스트 전용, 운영 사용 금지 — 글로벌 CLAUDE.md)
+  enabled: true
+  framework: spring-boot        # spring-boot
+  orm: mybatis                  # mybatis | jpa
+  language: java                # java | kotlin
+  language_version: 17          # 17 | 21
+  db: postgresql                # postgresql | mysql | oracle | mariadb
+                                # (h2는 테스트 전용, 운영 사용 금지 — 글로벌 CLAUDE.md)
 
 frontend:
-  markup: thymeleaf           # thymeleaf | react-jsx
-  interaction: jquery         # jquery | react
-  bundler: none               # none (Thymeleaf+jQuery) | vite | webpack
-  ts: false                   # TypeScript 사용 여부
+  enabled: true
+  framework: react              # react | nextjs | react-native | thymeleaf | html-vanilla | vue
+                                # (framework 자체가 다중 변형인 경우 {framework}/_common.md + 변형 파일 로드)
+  styling: tailwind             # tailwind | css-modules | styled-components | nativewind | none
+                                # (styling 이 버전 분기되는 경우 {styling}/_common.md + v{major}.md 로드.
+                                #  major 버전은 package.json 의 해당 패키지에서 감지)
+  language: ts                  # ts | js
+  bundler: vite                 # vite | webpack | none (thymeleaf 등)
+  interaction: react            # jquery | react | vue | none
+                                # (interaction 스킬이 참조. markup 스킬은 사용하지 않음)
 
 testing:
-  unit: junit5                # junit5
-  integration: testcontainers # testcontainers (글로벌 CLAUDE.md: H2 금지)
-  e2e: none                   # none | selenium | playwright
+  unit: junit5                  # junit5 | vitest | jest
+  integration: testcontainers   # testcontainers (글로벌 CLAUDE.md: H2 금지) | none
+  e2e: none                     # none | selenium | playwright | cypress
 
 deploy:
-  ci: jenkins                 # jenkins | github-actions | gitlab-ci
-  target: tomcat              # tomcat | docker | k8s
+  ci: jenkins                   # jenkins | github-actions | gitlab-ci
+  target: tomcat                # tomcat | docker | k8s | static (퍼블리싱 only)
 
 # 프로젝트 메타
 project:
   name: ""
-  group_id: "com.example"
+  group_id: "com.example"       # Spring Boot 프로젝트에서만 의미
   artifact_id: ""
   description: ""
 
