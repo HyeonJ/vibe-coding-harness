@@ -1,0 +1,16 @@
+# vibe-coding-harness: _workspace/ gitignore 컨벤션
+# 신규 프로젝트의 _workspace/.gitignore 로 복사할 것
+
+# 모든 _workspace 내용 ignore
+*
+
+# 단, handoff/ 하위는 commit (다른 개발자/세션 핸드오프용)
+!handoff/
+!handoff/**
+
+# .gitkeep은 commit (디렉토리 유지)
+!.gitkeep
+!*/.gitkeep
+
+# 자기 자신은 commit
+!.gitignore

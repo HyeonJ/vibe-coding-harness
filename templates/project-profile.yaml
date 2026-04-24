@@ -1,0 +1,37 @@
+# vibe-coding-harness Project Profile
+# 신규 프로젝트마다 이 파일을 복사 → .claude/project-profile.yaml 로 배치 후 값 채울 것
+# setup 스킬이 자동 생성도 가능
+
+backend:
+  framework: spring-boot      # spring-boot
+  orm: mybatis                # mybatis | jpa
+  java_version: 17            # 17 | 21
+  db: postgresql              # postgresql | mysql | oracle | mariadb
+                              # (h2는 테스트 전용, 운영 사용 금지 — 글로벌 CLAUDE.md)
+
+frontend:
+  markup: thymeleaf           # thymeleaf | react-jsx
+  interaction: jquery         # jquery | react
+  bundler: none               # none (Thymeleaf+jQuery) | vite | webpack
+  ts: false                   # TypeScript 사용 여부
+
+testing:
+  unit: junit5                # junit5
+  integration: testcontainers # testcontainers (글로벌 CLAUDE.md: H2 금지)
+  e2e: none                   # none | selenium | playwright
+
+deploy:
+  ci: jenkins                 # jenkins | github-actions | gitlab-ci
+  target: tomcat              # tomcat | docker | k8s
+
+# 프로젝트 메타
+project:
+  name: ""
+  group_id: "com.example"
+  artifact_id: ""
+  description: ""
+
+# 사내 표준 의존성 (선택)
+dependencies:
+  use_company_lib: false
+  company_lib_version: ""
